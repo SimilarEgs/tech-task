@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -22,7 +22,7 @@ type HTTP struct {
 func ParseConfig() (*Config, error) {
 
 	if err := godotenv.Load(".env"); err != nil {
-		log.Fatalf("[Error] .env file didn't load: %s", err.Error())
+		return nil, fmt.Errorf("[Error] .env file didn't load: %s", err.Error())
 	}
 
 	var c Config
