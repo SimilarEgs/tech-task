@@ -5,7 +5,6 @@ import (
 
 	"github.com/SimilarEgs/tech-task/config"
 	"github.com/SimilarEgs/tech-task/internal/server"
-	"github.com/SimilarEgs/tech-task/internal/service"
 )
 
 func main() {
@@ -15,9 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	userService := service.NewUserService()
-
-	api := server.NewAPI(*service.NewServerService(userService))
+	api := server.NewAPI()
 
 	server, err := server.NewServer(config.Host+":"+config.Port, api)
 	if err != nil {

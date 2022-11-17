@@ -1,33 +1,39 @@
 package service
 
-import "github.com/SimilarEgs/tech-task/internal/models"
+import (
+	"github.com/SimilarEgs/tech-task/internal/models"
+	"github.com/SimilarEgs/tech-task/internal/repository"
+)
 
 type UserService interface {
-	searchUsers() ([]models.User, error)
-	getUser(id string) (models.User, error)
-	createUser(user models.User) error
-	updateUser(user models.User) error
-	deleteUser(id string) error
+	SearchUsers() ([]models.User, error)
+	GetUser(id string) (models.User, error)
+	CreateUser(user models.User) error
+	UpdateUser(user models.User) error
+	DeleteUser(id string) error
 }
 
-type userService struct{}
-
-func NewUserService() UserService {
-	return &userService{}
+type userService struct {
+	userRepository repository.UserStore
 }
 
-func (u *userService) searchUsers() ([]models.User, error) {
+func NewUserService(userRepo repository.UserStore) UserService {
+	return &userService{userRepository: userRepo}
+}
+
+func (u *userService) SearchUsers() ([]models.User, error) {
 	return nil, nil
 }
-func (u *userService) getUser(id string) (models.User, error) {
-	return models.User{}, nil
+func (u *userService) GetUser(id string) (models.User, error) {
+	test, _ := u.userRepository.GetUser(id)
+	return test, nil
 }
-func (u *userService) createUser(user models.User) error {
+func (u *userService) CreateUser(user models.User) error {
 	return nil
 }
-func (u *userService) updateUser(user models.User) error {
+func (u *userService) UpdateUser(user models.User) error {
 	return nil
 }
-func (u *userService) deleteUser(id string) error {
+func (u *userService) DeleteUser(id string) error {
 	return nil
 }

@@ -12,25 +12,26 @@ type UserStore struct {
 
 type UserList map[string]models.User
 
-func NewUserStore() *UserStore {
+func NewUserRepository() *UserStore {
 	return &UserStore{
 		List: UserList{},
 	}
 }
 
-func (u *UserStore) searchUsers() []models.User {
+func (u *UserStore) SearchUsers() []models.User {
 	return nil
 }
 
-func (u *UserStore) getUser(id string) (models.User, error) {
+func (u *UserStore) GetUser(id string) (models.User, error) {
+	u.List["1"] = models.User{DisplayName: "Test"}
 	return models.User{}, nil
 }
-func (u *UserStore) createUser(user models.User) error {
+func (u *UserStore) CreateUser(user models.User) error {
 	return nil
 }
-func (u *UserStore) updateUser(user models.User) error {
+func (u *UserStore) UpdateUser(user models.User) error {
 	return nil
 }
-func (u *UserStore) deleteUser(id string) error {
+func (u *UserStore) DeleteUser(id string) error {
 	return nil
 }
