@@ -1,7 +1,12 @@
 package server
 
 import (
+	"context"
+	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -21,4 +26,37 @@ func NewServer(addr string) (*Server, error) {
 	}
 
 	return &Server{&srv}, nil
+}
+
+// Start func - runs http server via ListenAndServe with graceful shutdown
+func (srv *Server) Start() {
+
+	log.Println("[Info] starting server")
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("[Error] occurred while starting the server: %s", err.Error())
+		}
+	}()
+	log.Println("[Info] server has been successfully started")
+	srv.gracefulShutdown()
+}
+
+// gracefulShutdown func - implementation of gracful shutdown
+func (srv *Server) gracefulShutdown() {
+
+	quit := make(chan os.Signal, 1)
+
+	signal.Notify(quit, os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+	log.Println("[Info] server is shutting down")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("[Error] occured during server shutdown: %s", err.Error())
+	}
+
+	log.Println("[Info] server exited")
 }

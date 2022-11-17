@@ -37,5 +37,6 @@ func NewAPI() *chi.Mux {
 			})
 		})
 	})
+
 	return r
 }
