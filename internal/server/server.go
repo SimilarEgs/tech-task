@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/go-chi/chi"
 )
 
 type Server struct {
@@ -15,11 +17,11 @@ type Server struct {
 }
 
 // NewServer func - creates and configures a new http server
-func NewServer(addr string) (*Server, error) {
+func NewServer(addr string, r *chi.Mux) (*Server, error) {
 
 	srv := http.Server{
 		Addr:         addr,
-		Handler:      NewAPI(),
+		Handler:      r,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  15 * time.Second,

@@ -4,12 +4,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/SimilarEgs/tech-task/internal/service"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
 
 // NewAPI func - Defines the REST apis and returns the new chi router
-func NewAPI() *chi.Mux {
+func NewAPI(services service.ServerService) *chi.Mux {
+
+	h := Handler{
+		userService: service.NewUserService(),
+	}
 
 	r := chi.NewRouter()
 
@@ -26,13 +31,13 @@ func NewAPI() *chi.Mux {
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/users", func(r chi.Router) {
-				r.Get("/", SearchUsers)
-				r.Post("/", CreateUser)
+				r.Get("/", h.SearchUsers)
+				r.Post("/", h.CreateUser)
 
 				r.Route("/{id}", func(r chi.Router) {
-					r.Get("/", GetUser)
-					r.Patch("/", UpdateUser)
-					r.Delete("/", DeleteUser)
+					r.Get("/", h.GetUser)
+					r.Patch("/", h.UpdateUser)
+					r.Delete("/", h.DeleteUser)
 				})
 			})
 		})
