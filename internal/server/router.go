@@ -17,11 +17,11 @@ func NewAPI() *chi.Mux {
 	userRepo := repository.NewUserRepository()
 
 	// init services
-	userServece := service.NewUserService(*userRepo)
+	userService := service.NewUserService(*userRepo)
 
 	// init handlers
 	h := Handler{
-		userService: userServece,
+		userService: userService,
 	}
 
 	r := chi.NewRouter()

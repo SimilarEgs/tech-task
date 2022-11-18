@@ -22,7 +22,7 @@ func NewUserService(userRepo repository.UserStore) UserService {
 }
 
 func (u *userService) SearchUsers() ([]models.User, error) {
-	return nil, nil
+	return u.userRepository.SearchUsers()
 }
 func (u *userService) GetUser(id string) (models.User, error) {
 	test, _ := u.userRepository.GetUser(id)
