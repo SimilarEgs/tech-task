@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -42,6 +43,28 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, data)
 
 }
-func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {}
+
+type CreateUserRequest struct {
+	DisplayName string `json:"display_name"`
+	Email       string `json:"email"`
+}
+
+func (c *CreateUserRequest) Bind(r *http.Request) error { return nil }
+
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+
+	request := CreateUserRequest{}
+
+	if err := render.Bind(r, &request); err != nil {
+		_ = render.Render(w, r, httperrors.NewBadRequestError(err))
+		return
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		log.Println("ERRORRR:", err)
+	}
+
+}
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {}
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {}

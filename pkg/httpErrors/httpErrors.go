@@ -13,6 +13,7 @@ type APIerr interface {
 	Status() int
 	Error() string
 	Causes() interface{}
+	Render(w http.ResponseWriter, r *http.Request) error
 }
 
 var (
@@ -27,7 +28,7 @@ type APIerror struct {
 	ErrCauses interface{} `json:"-"`
 }
 
-func (e *APIerror) Render(w http.ResponseWriter, r *http.Request) error {
+func (e APIerror) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, e.ErrStatus)
 	return nil
 }
