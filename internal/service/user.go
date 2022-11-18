@@ -25,8 +25,7 @@ func (u *userService) SearchUsers() ([]models.User, error) {
 	return u.userRepository.SearchUsers()
 }
 func (u *userService) GetUser(id string) (models.User, error) {
-	test, _ := u.userRepository.GetUser(id)
-	return test, nil
+	return u.userRepository.GetUser(id)
 }
 func (u *userService) CreateUser(user models.User) error {
 	return nil
