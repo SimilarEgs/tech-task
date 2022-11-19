@@ -1,10 +1,10 @@
 package server
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
+	"github.com/SimilarEgs/tech-task/internal/models"
 	"github.com/SimilarEgs/tech-task/internal/service"
 	httperrors "github.com/SimilarEgs/tech-task/pkg/httpErrors"
 	"github.com/go-chi/chi"
@@ -35,7 +35,9 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	data, err := h.userService.GetUser(id)
 
 	if err != nil {
-		log.Println(err)
+		if err != httperrors.NotFound {
+			log.Println(err)
+		}
 		render.JSON(w, r, httperrors.ErrorResponse(err))
 		return
 	}
@@ -44,27 +46,64 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-type CreateUserRequest struct {
-	DisplayName string `json:"display_name"`
-	Email       string `json:"email"`
-}
-
-func (c *CreateUserRequest) Bind(r *http.Request) error { return nil }
-
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
-	request := CreateUserRequest{}
+	request := models.CreateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
+		log.Printf("[Error] %s\n", err.Error())
 		_ = render.Render(w, r, httperrors.NewBadRequestError(err))
 		return
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&request)
+	id, err := h.userService.CreateUser(request)
 	if err != nil {
-		log.Println("ERRORRR:", err)
+		log.Println(err)
+		render.JSON(w, r, httperrors.ErrorResponse(err))
 	}
 
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, map[string]interface{}{
+		"user_id": id,
+	})
+
 }
-func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {}
-func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {}
+func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+
+	request := models.UpdateUserRequest{}
+
+	if err := render.Bind(r, &request); err != nil {
+		log.Printf("[Error] %s\n", err.Error())
+		_ = render.Render(w, r, httperrors.NewBadRequestError(err))
+		return
+	}
+
+	id := chi.URLParam(r, "id")
+
+	err := h.userService.UpdateUser(request, id)
+	if err != nil {
+		if err != httperrors.NotFound {
+			log.Println(err)
+		}
+		render.JSON(w, r, httperrors.ErrorResponse(err))
+	}
+
+	render.Status(r, http.StatusNoContent)
+}
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+
+	id := chi.URLParam(r, "id")
+
+	err := h.userService.DeleteUser(id)
+
+	if err != nil {
+		if err != httperrors.NotFound {
+			log.Println(err)
+		}
+		render.JSON(w, r, httperrors.ErrorResponse(err))
+		return
+	}
+
+	render.Status(r, http.StatusNoContent)
+
+}

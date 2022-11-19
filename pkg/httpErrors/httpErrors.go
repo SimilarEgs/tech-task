@@ -84,6 +84,8 @@ func ParseErrors(err error) APIerr {
 		return NewAPIerror(http.StatusNotFound, NotFound.Error(), err)
 	case strings.Contains(err.Error(), "Unmarshal"):
 		return NewAPIerror(http.StatusBadRequest, BadRequest.Error(), err)
+	case strings.Contains(err.Error(), "empty"):
+		return NewAPIerror(http.StatusBadRequest, BadRequest.Error(), err)
 	default:
 		return NewInternalServerError(err)
 	}

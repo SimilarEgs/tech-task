@@ -2,8 +2,12 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
+	"strconv"
+	"time"
 
 	"github.com/SimilarEgs/tech-task/internal/models"
 	httperrors "github.com/SimilarEgs/tech-task/pkg/httpErrors"
@@ -67,12 +71,108 @@ func (u *UserStore) GetUser(id string) (models.User, error) {
 	return u.List[id], nil
 
 }
-func (u *UserStore) CreateUser(user models.User) error {
-	return nil
+func (u *UserStore) CreateUser(user models.CreateUserRequest) (int, error) {
+
+	if user.DisplayName == "" || user.Email == "" {
+		return 0, errors.New("[Error] empty fields")
+	}
+
+	f, err := ioutil.ReadFile(store)
+	if err != nil {
+		return 0, fmt.Errorf("[Error] occurred during file read: %s", err.Error())
+	}
+
+	err = json.Unmarshal(f, &u)
+	if err != nil {
+		return 0, fmt.Errorf("[Error] occurred while parsing: %s", err.Error())
+	}
+
+	u.Increment++
+
+	newUser := models.User{
+		CreatedAt:   time.Now(),
+		DisplayName: user.DisplayName,
+		Email:       user.Email,
+	}
+
+	id := strconv.Itoa(u.Increment)
+	u.List[id] = newUser
+
+	b, err := json.Marshal(&u)
+	if err != nil {
+		return 0, fmt.Errorf("[Error] occurred while marshalling: %s", err.Error())
+	}
+
+	err = ioutil.WriteFile(store, b, fs.ModePerm)
+	if err != nil {
+		return 0, fmt.Errorf("[Error] occurred while writing file: %s", err.Error())
+	}
+
+	return u.Increment, nil
 }
-func (u *UserStore) UpdateUser(user models.User) error {
+func (u *UserStore) UpdateUser(user models.UpdateUserRequest, id string) error {
+
+	f, err := ioutil.ReadFile(store)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred during file read: %s", err.Error())
+	}
+
+	err = json.Unmarshal(f, &u)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred while parsing: %s", err.Error())
+	}
+
+	if _, ok := u.List[id]; !ok {
+		return httperrors.NotFound
+	}
+
+	updateUser := u.List[id]
+
+	updateUser.DisplayName = user.DisplayName
+	updateUser.Email = user.Email
+
+	u.List[id] = updateUser
+
+	b, err := json.Marshal(&u)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred while marshalling: %s", err.Error())
+	}
+
+	err = ioutil.WriteFile(store, b, fs.ModePerm)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred while writing file: %s", err.Error())
+	}
+
 	return nil
 }
 func (u *UserStore) DeleteUser(id string) error {
+
+	f, err := ioutil.ReadFile(store)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred during file read: %s", err.Error())
+	}
+
+	err = json.Unmarshal(f, &u)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred while parsing: %s", err.Error())
+	}
+
+	if _, ok := u.List[id]; !ok {
+		return httperrors.NotFound
+	}
+
+	delete(u.List, id)
+
+	b, err := json.Marshal(&u)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred while marshalling: %s", err.Error())
+	}
+
+	err = ioutil.WriteFile(store, b, fs.ModePerm)
+	if err != nil {
+		return fmt.Errorf("[Error] occurred while writing file: %s", err.Error())
+	}
+
 	return nil
+
 }

@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"net/http"
+	"time"
+)
 
 // User struct - representaion of the user entity
 type User struct {
@@ -8,3 +11,16 @@ type User struct {
 	DisplayName string    `json:"display_name"`
 	Email       string    `json:"email"`
 }
+
+type CreateUserRequest struct {
+	DisplayName string `json:"display_name"`
+	Email       string `json:"email"`
+}
+
+type UpdateUserRequest struct {
+	DisplayName string `json:"display_name"`
+	Email       string `json:"email"`
+}
+
+func (c *CreateUserRequest) Bind(r *http.Request) error { return nil }
+func (c *UpdateUserRequest) Bind(r *http.Request) error { return nil }
