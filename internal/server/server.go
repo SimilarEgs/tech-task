@@ -16,7 +16,6 @@ type Server struct {
 	*http.Server
 }
 
-// NewServer func - creates and configures a new http server
 func NewServer(addr string, r *chi.Mux) (*Server, error) {
 
 	srv := http.Server{
@@ -30,9 +29,7 @@ func NewServer(addr string, r *chi.Mux) (*Server, error) {
 	return &Server{&srv}, nil
 }
 
-// Start func - runs http server via ListenAndServe with graceful shutdown
 func (srv *Server) Start() {
-
 	log.Println("[Info] starting server")
 
 	go func() {
@@ -44,9 +41,7 @@ func (srv *Server) Start() {
 	srv.gracefulShutdown()
 }
 
-// gracefulShutdown func - implementation of gracful shutdown
 func (srv *Server) gracefulShutdown() {
-
 	quit := make(chan os.Signal, 1)
 
 	signal.Notify(quit, os.Interrupt, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGINT)

@@ -1,22 +1,24 @@
-package server
+package handler
 
 import (
 	"log"
 	"net/http"
 
-	"github.com/SimilarEgs/tech-task/internal/models"
-	"github.com/SimilarEgs/tech-task/internal/service"
+	"github.com/SimilarEgs/tech-task/internal/model"
 	httperrors "github.com/SimilarEgs/tech-task/pkg/httpErrors"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
 
-type Handler struct {
-	userService service.UserService
+type userHandler struct {
+	userService model.UserService
 }
 
-func (h *Handler) SearchUsers(w http.ResponseWriter, r *http.Request) {
+func NewUserHandler(userService model.UserService) *userHandler {
+	return &userHandler{userService: userService}
+}
 
+func (h *userHandler) SearchUsers(w http.ResponseWriter, r *http.Request) {
 	data, err := h.userService.SearchUsers()
 
 	if err != nil {
@@ -26,10 +28,9 @@ func (h *Handler) SearchUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, data)
-
 }
-func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 
+func (h *userHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	data, err := h.userService.GetUser(id)
@@ -43,12 +44,10 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, data)
-
 }
 
-func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-
-	request := models.CreateUserRequest{}
+func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	request := model.CreateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
 		log.Printf("[Error] %s\n", err.Error())
@@ -66,11 +65,10 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, map[string]interface{}{
 		"user_id": id,
 	})
-
 }
-func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
-	request := models.UpdateUserRequest{}
+func (h *userHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	request := model.UpdateUserRequest{}
 
 	if err := render.Bind(r, &request); err != nil {
 		log.Printf("[Error] %s\n", err.Error())
@@ -90,8 +88,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusNoContent)
 }
-func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
+func (h *userHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	err := h.userService.DeleteUser(id)
@@ -105,5 +103,4 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.Status(r, http.StatusNoContent)
-
 }

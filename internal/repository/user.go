@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/SimilarEgs/tech-task/internal/models"
+	"github.com/SimilarEgs/tech-task/internal/model"
 	httperrors "github.com/SimilarEgs/tech-task/pkg/httpErrors"
 )
 
@@ -17,22 +17,20 @@ const (
 	store = "users.json"
 )
 
-// UserStroe struct - responsible for the User data storage
-type UserStore struct {
+type userStore struct {
 	Increment int      `json:"increment"`
 	List      UserList `json:"list"`
 }
 
-type UserList map[string]models.User
+type UserList map[string]model.User
 
-func NewUserRepository() *UserStore {
-	return &UserStore{
+func NewUserRepository() *userStore {
+	return &userStore{
 		List: UserList{},
 	}
 }
 
-func (u *UserStore) SearchUsers() ([]models.User, error) {
-
+func (u *userStore) SearchUsers() ([]model.User, error) {
 	f, err := ioutil.ReadFile(store)
 	if err != nil {
 		return nil, fmt.Errorf("[Error] occurred during file read: %s", err.Error())
@@ -43,7 +41,7 @@ func (u *UserStore) SearchUsers() ([]models.User, error) {
 		return nil, fmt.Errorf("[Error] occurred while parsing: %s", err.Error())
 	}
 
-	res := make([]models.User, 0, 10)
+	res := make([]model.User, 0, 10)
 
 	for _, user := range u.List {
 		res = append(res, user)
@@ -52,27 +50,25 @@ func (u *UserStore) SearchUsers() ([]models.User, error) {
 	return res, nil
 }
 
-func (u *UserStore) GetUser(id string) (models.User, error) {
-
+func (u *userStore) GetUser(id string) (model.User, error) {
 	f, err := ioutil.ReadFile(store)
 	if err != nil {
-		return models.User{}, fmt.Errorf("[Error] occurred during file read: %s", err.Error())
+		return model.User{}, fmt.Errorf("[Error] occurred during file read: %s", err.Error())
 	}
 
 	err = json.Unmarshal(f, &u)
 	if err != nil {
-		return models.User{}, fmt.Errorf("[Error] occurred while parsing: %s", err.Error())
+		return model.User{}, fmt.Errorf("[Error] occurred while parsing: %s", err.Error())
 	}
 
 	if _, ok := u.List[id]; !ok {
-		return models.User{}, httperrors.NotFound
+		return model.User{}, httperrors.NotFound
 	}
 
 	return u.List[id], nil
 
 }
-func (u *UserStore) CreateUser(user models.CreateUserRequest) (int, error) {
-
+func (u *userStore) CreateUser(user model.CreateUserRequest) (int, error) {
 	if user.DisplayName == "" || user.Email == "" {
 		return 0, errors.New("[Error] empty fields")
 	}
@@ -89,7 +85,7 @@ func (u *UserStore) CreateUser(user models.CreateUserRequest) (int, error) {
 
 	u.Increment++
 
-	newUser := models.User{
+	newUser := model.User{
 		CreatedAt:   time.Now(),
 		DisplayName: user.DisplayName,
 		Email:       user.Email,
@@ -110,8 +106,8 @@ func (u *UserStore) CreateUser(user models.CreateUserRequest) (int, error) {
 
 	return u.Increment, nil
 }
-func (u *UserStore) UpdateUser(user models.UpdateUserRequest, id string) error {
 
+func (u *userStore) UpdateUser(user model.UpdateUserRequest, id string) error {
 	f, err := ioutil.ReadFile(store)
 	if err != nil {
 		return fmt.Errorf("[Error] occurred during file read: %s", err.Error())
@@ -145,8 +141,8 @@ func (u *UserStore) UpdateUser(user models.UpdateUserRequest, id string) error {
 
 	return nil
 }
-func (u *UserStore) DeleteUser(id string) error {
 
+func (u *userStore) DeleteUser(id string) error {
 	f, err := ioutil.ReadFile(store)
 	if err != nil {
 		return fmt.Errorf("[Error] occurred during file read: %s", err.Error())
@@ -174,5 +170,4 @@ func (u *UserStore) DeleteUser(id string) error {
 	}
 
 	return nil
-
 }

@@ -8,18 +8,17 @@ import (
 )
 
 func main() {
-
-	config, err := config.ParseConfig()
+	config_, err := config.ParseConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	api := server.NewAPI()
 
-	server, err := server.NewServer(config.Host+":"+config.Port, api)
+	server_, err := server.NewServer(config_.Host+":"+config_.Port, api)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	server.Start()
+	server_.Start()
 }
