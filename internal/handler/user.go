@@ -59,6 +59,7 @@ func (h *userHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		render.JSON(w, r, httperrors.ErrorResponse(err))
+		return
 	}
 
 	render.Status(r, http.StatusCreated)
@@ -84,6 +85,7 @@ func (h *userHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 		}
 		render.JSON(w, r, httperrors.ErrorResponse(err))
+		return
 	}
 
 	render.Status(r, http.StatusNoContent)
